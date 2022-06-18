@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="ssd"               default="true"/>
+  <arg name="mount_ssd_name"    default="/mnt/ssd"/>
+  <arg name="rosbag_name"       default="rosbag"/>
+  
+
+  <param if="$(arg ssd)" name="mk_rosbag_dir" command="mkdir -p $(arg mount_ssd_name)/rosbag/"/>
+  <param unless="$(arg ssd)" name="mk_rosbag_dir" command="mkdir -p /home/$(env USER)/rosbag/"/>
+  
+  <node if="$(arg ssd)" pkg="rosbag" type="record" name="rosbag_record_navigation" output="screen"
+    args="-o $(arg mount_ssd_name)/rosbag/$(arg rosbag_name)
+            -b 0
+            -e
+            /cmd_vel  
+            /odom
+            /scan
+            /tf(.*)
+  "/>
+  <node unless="$(arg ssd)" pkg="rosbag" type="record" name="rosbag_record_navigation" output="screen"
+    args="-o /home/$(env USER)/rosbag/$(arg rosbag_name)
+              -b 0
+              -e
+              /cmd_vel  
+              /odom
+              /scan     
+              /tf(.*)
+  "/>
+</launch>
